@@ -3,7 +3,7 @@ import mqtt from 'mqtt';
 let client;
 
 export const connectMqtt = (onMessageCallback, setResponseCallback, setConnectingCallback) => {
-  const brokerUrl = 'ws://10.90.0.1:9001';
+  const brokerUrl = 'wss://10.90.0.1:9001';
 
   if (client && client.connected) {
     const msg = '⚠️ Already connected to MQTT broker';
