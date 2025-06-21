@@ -1,4 +1,3 @@
-// mqttservice.js
 import mqtt from 'mqtt';
 
 let client;
