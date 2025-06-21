@@ -1,8 +1,9 @@
+// mqttservice.js
 import mqtt from 'mqtt';
 
 let client;
 
-export const connectMqtt = (onMessageCallback, setResponseCallback, setConnecting) => {
+export const connectMqtt = (onMessageCallback, setResponseCallback, setConnectingCallback) => {
   const brokerUrl = 'ws://10.90.0.1:9001';
 
   if (client && client.connected) {
@@ -12,22 +13,15 @@ export const connectMqtt = (onMessageCallback, setResponseCallback, setConnectin
     return;
   }
 
-  setConnecting(true); 
-
-  client = mqtt.connect(brokerUrl, {
-    reconnectPeriod: 2000 
-  });
+  setConnectingCallback?.(true);
+  client = mqtt.connect(brokerUrl);
 
   client.on('connect', () => {
     const msg = '✅ Connected to MQTT broker';
     console.log(msg);
-    setConnecting(false);
+    setConnectingCallback?.(false);
     setResponseCallback?.(msg);
     client.subscribe('device/control/response');
-  });
-
-  client.on('reconnect', () => {
-    setResponseCallback?.('🔄 Reconnecting to MQTT broker...');
   });
 
   client.on('message', (topic, message) => {
@@ -35,17 +29,29 @@ export const connectMqtt = (onMessageCallback, setResponseCallback, setConnectin
   });
 
   client.on('error', (err) => {
-    const errorMsg = `❌ MQTT error: ${err.message}`;
+    const errorMsg = `❌ MQTT connection error: ${err.message}`;
     console.error(errorMsg);
+    setConnectingCallback?.(false);
     setResponseCallback?.(errorMsg);
-    setConnecting(false);
+  });
+
+  client.on('close', () => {
+    setResponseCallback?.('🔌 MQTT connection disconnected');
   });
 };
 
-export const sendCommand = (value) => {
+export const sendCommand = (value, callback) => {
   if (client?.connected) {
-    client.publish('device/control', String(value));
+    client.publish('device/control', String(value), () => {
+      callback?.(`📤 Command sent: ${value}`);
+    });
   } else {
-    console.warn('⚠️ Client not connected');
+    callback?.('⚠️ Client not connected');
+  }
+};
+
+export const disconnectMqtt = () => {
+  if (client?.connected) {
+    client.end(); // Will trigger the 'close' event
   }
 };

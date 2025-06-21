@@ -1,41 +1,58 @@
 import React, { useEffect, useState } from 'react';
-import { connectMqtt, sendCommand } from "../mqtt/mqttservice";
+import { connectMqtt, sendCommand, disconnectMqtt } from '../mqtt/mqttservice';
 
 const MqttControl = () => {
   const [response, setResponse] = useState('');
-  const [history, setHistory] = useState([]);
   const [connecting, setConnecting] = useState(false);
+  const [connected, setConnected] = useState(false);
 
-  useEffect(() => {
+  const handleConnect = () => {
+    setConnecting(true);
     connectMqtt(
       (msg) => {
-        setResponse(msg);
-        setHistory(prev => [msg, ...prev]);
+        if (!msg.includes('disconnected')) {
+          setResponse(msg);
+        }
       },
-      setResponse,
+      (msg) => {
+        setResponse(msg);
+        if (msg.includes('Connected')) setConnected(true);
+        if (msg.includes('disconnected')) setConnected(false);
+        setConnecting(false);
+      },
       setConnecting
     );
+  };
+
+  useEffect(() => {
+    handleConnect();
   }, []);
+
+  const handleDisconnect = () => {
+    disconnectMqtt();
+    const msg = '🔌 MQTT connection disconnected';
+    setResponse(msg);
+    setConnected(false);
+  };
 
   return (
     <div>
       <h2>MQTT Device Control</h2>
 
-      <button onClick={() => sendCommand(1)}>Turn ON</button>
-      <button onClick={() => sendCommand(0)}>Turn OFF</button>
+      <button onClick={() => sendCommand(1, setResponse)}>Turn ON</button>
+      <button onClick={() => sendCommand(0, setResponse)}>Turn OFF</button>
+
+      {connected && <button onClick={handleDisconnect}>Disconnect</button>}
+
+      {!connected && (
+        <button onClick={handleConnect} disabled={connecting}>
+          🔌 Connect
+        </button>
+      )}
 
       {connecting && <p>🔄 Connecting to MQTT broker...</p>}
 
       <p><strong>Response:</strong> {response}</p>
-
-      <div>
-        {/* <h4>Message History:</h4> */}
-        <ul>
-          {history.map((msg, index) => (
-            <li key={index}>{msg}</li>
-          ))}
-        </ul>
-      </div>
     </div>
   );
 };
