@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { connectMqtt, sendCommand, disconnectMqtt } from '../mqtt/mqttservice';
+import { connectMqtt, sendCommand, disconnectMqtt } from '../mqtt/mqttService';
 
 const MqttControl = () => {
   const [response, setResponse] = useState('');
