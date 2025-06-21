@@ -1,14 +1,24 @@
-# React + Vite
+## 📡 MQTT Device Control App
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This is a lightweight React-based web application that connects to an MQTT broker over WebSocket. It allows users to remotely control a device by sending `ON` and `OFF` commands and displays live responses from the device.
 
-Currently, two official plugins are available:
+### 🔧 Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+* Connects to an MQTT broker via WebSocket (`ws://`)
+* Sends `device/control` messages to trigger device actions
+* Displays current response and full message history
+* Auto-reconnects on disconnects
+* Shows connection status with a loading spinner
 
-## Expanding the ESLint configuration
+### 📂 Tech Stack
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
-# mqttapp
-# mqttapp
+* React
+* MQTT.js
+* Vite
+
+### 🚀 Usage
+
+1. Start the Mosquitto broker with WebSocket enabled (e.g., on port `9001`).
+2. Run the React app with `npm run dev`.
+3. Open `http://localhost:5173` to use the interface.
+
